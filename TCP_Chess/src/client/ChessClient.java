@@ -1,4 +1,4 @@
-package client;
+//package client;
 
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -21,6 +21,9 @@ import javax.swing.JPanel;
  * A client for TCP Chess. The 
  * @author Zach, Kyle, and Steve
  *
+ * Steve's attempt to add a gui
+ * 2015.03.30
+ *
  */
 public class ChessClient {
 
@@ -31,7 +34,8 @@ public class ChessClient {
     private static ImageIcon icon;
     private ImageIcon opponentIcon;
 
-    private Square[] board = new Square[9];
+    //private Square[] board = new Square[9];
+    private Square[][] board = new Square[8][8];
     private Square currentSquare;
 
 
@@ -60,16 +64,19 @@ public class ChessClient {
 
         JPanel boardPanel = new JPanel();
         boardPanel.setBackground(Color.black);
-        boardPanel.setLayout(new GridLayout(3, 3, 2, 2));
+        boardPanel.setLayout(new GridLayout(board.length, board[0].length, 2, 2));
         for (int i = 0; i < board.length; i++) {
-            final int j = i;
-            board[i] = new Square();
-            board[i].addMouseListener(new MouseAdapter() {
-                public void mousePressed(MouseEvent e) {
-                    currentSquare = board[j];
-                    out.println("MOVE " + "E4E5");}});
-            		//out.println("MOVE " + j);}});
-            boardPanel.add(board[i]);
+            for (int j = 0; j < board[i].length; j++) {
+                final int fi =i;
+                final int fj =j;
+                board[i][j] = new Square(i,j);
+                board[i][j].addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        currentSquare = board[fi][fj];
+                        out.println("Clicked " + fi+","+fj);}});
+                        //out.println("MOVE " + j);}});
+                boardPanel.add(board[i][j]);
+            }
         }
         frame.getContentPane().add(boardPanel, "Center");
     }
@@ -82,17 +89,17 @@ public class ChessClient {
      * This also controls the continue game loop.
      */
     @SuppressWarnings("static-access")
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         while (true) {
-        	// Get server address
-        	String serverAddress;
-        	if(args.length == 0) serverAddress = getServerAddress();
-        	else serverAddress = args[0];      	
-        	
-        	// Starts the ChessClient
+            // Get server address
+            String serverAddress;
+            if(args.length == 0) serverAddress = getServerAddress();
+            else serverAddress = args[0];       
+            
+            // Starts the ChessClient
             ChessClient client = new ChessClient(serverAddress);
             client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            client.frame.setSize(350, 350);
+            client.frame.setSize(500, 500);
             client.frame.setVisible(true);
             client.frame.setResizable(false);
             client.play();
@@ -133,28 +140,28 @@ public class ChessClient {
      * @return A string of the selected player name.
      */
     private static String choosePlayer(String players){
-    	Object[] allPlayers = players.split(" ");
-    	
-    	Object[] allPlayersMinusClient = new Object[allPlayers.length - 1];
-    	// Copies into the new array all values except the current username
-    	
-    	int j = 0;
-    	for(int i = 0; i < allPlayers.length; i++){
-    		if(!((String)allPlayers[i]).equals(username)){
-    			allPlayersMinusClient[j++] = allPlayers[i];
-    		}
-    	}
-    	if(allPlayersMinusClient.length != 0){
-	    	return (String)JOptionPane.showInputDialog(
-	                frame,
-	                "Choose a player or select cancel to wait for another player to choose you:",
-	                "Player Selection",
-	                JOptionPane.PLAIN_MESSAGE,
-	                icon,
-	                allPlayersMinusClient,
-	                allPlayersMinusClient[0]);
-    	}
-    	return "";
+        Object[] allPlayers = players.split(" ");
+        
+        Object[] allPlayersMinusClient = new Object[allPlayers.length - 1];
+        // Copies into the new array all values except the current username
+        
+        int j = 0;
+        for(int i = 0; i < allPlayers.length; i++){
+            if(!((String)allPlayers[i]).equals(username)){
+                allPlayersMinusClient[j++] = allPlayers[i];
+            }
+        }
+        if(allPlayersMinusClient.length != 0){
+            return (String)JOptionPane.showInputDialog(
+                    frame,
+                    "Choose a player or select cancel to wait for another player to choose you:",
+                    "Player Selection",
+                    JOptionPane.PLAIN_MESSAGE,
+                    icon,
+                    allPlayersMinusClient,
+                    allPlayersMinusClient[0]);
+        }
+        return "";
     }
     /**
      * A prompt with do you want to play the challenger?
@@ -162,12 +169,12 @@ public class ChessClient {
      * @return The selection of hte client. 0 for yes and 1 for no.
      */
     private static int challenge(String challengeString){
-    	String challenger = challengeString.substring(10);
-    	return (JOptionPane.showConfirmDialog(
-    		    frame,
-    		    "Would you like to play " + challenger,
-    		    null,
-    		    JOptionPane.YES_NO_OPTION));
+        String challenger = challengeString.substring(10);
+        return (JOptionPane.showConfirmDialog(
+                frame,
+                "Would you like to play " + challenger,
+                null,
+                JOptionPane.YES_NO_OPTION));
     }
     
     /**
@@ -176,19 +183,19 @@ public class ChessClient {
      * char 'b' for black and 'w' for white.
      */
     private static char chooseColor(){
-    	Object[] options = {"Black", "White"};
-    	int n = JOptionPane.showOptionDialog(frame,
-    			"Please Choose a Starting Color",
-				"Color Selection",
-				JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE,
-				null,     //do not use a custom Icon
-				options,  //the titles of buttons
-				options[0]); //default button title
-    	if(n == 0) return 'b';
-    	return 'w';
+        Object[] options = {"Black", "White"};
+        int n = JOptionPane.showOptionDialog(frame,
+                "Please Choose a Starting Color",
+                "Color Selection",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,     //do not use a custom Icon
+                options,  //the titles of buttons
+                options[0]); //default button title
+        if(n == 0) return 'b';
+        return 'w';
     }
-    	
+        
     /**
      * The main thread of the client will listen for messages
      * and provides a GUI for responses. This class has three
@@ -208,7 +215,7 @@ public class ChessClient {
         while (true) {
             response = in.readLine();
             if (response.startsWith("GETUSERNAME")) {
-            	messageLabel.setText("Please enter a username");
+                messageLabel.setText("Please enter a username");
                 username = getUsername();
                 out.println("USERNAME" + username);
             } else if (response.startsWith("NAMEACCEPTED")) {
@@ -222,43 +229,43 @@ public class ChessClient {
         // Get PlayerChoice Loop
         out.println("GET_PLAYERLIST");
         while(true){
-        	response = in.readLine();
+            response = in.readLine();
             if(response.startsWith("PLAYERLIST")){
                 messageLabel.setText("Opponent Selection");
-            	String players = response.substring(10);
+                String players = response.substring(10);
 
-	            // Display GUI of listed Players and respond with chosen player
-	            if(players.length() > 0){
-	            	String playerChoice = choosePlayer(players);
-	            	if(playerChoice != null){
-		            	out.println("CHOOSEN_PLAYER " + playerChoice);
-	            	}
-	            }
+                // Display GUI of listed Players and respond with chosen player
+                if(players.length() > 0){
+                    String playerChoice = choosePlayer(players);
+                    if(playerChoice != null){
+                        out.println("CHOOSEN_PLAYER " + playerChoice);
+                    }
+                }
             }
             else if(response.startsWith("MESSAGE")){
                 messageLabel.setText(response.substring(8));
             }
             else if(response.startsWith("CHALLENGE")){
-            	String challengerUsername = response.substring(10);
-            	int choice = challenge(response);
-            	out.println("ACCEPT_OR_REJECT_GAME " + choice + " " + challengerUsername);
+                String challengerUsername = response.substring(10);
+                int choice = challenge(response);
+                out.println("ACCEPT_OR_REJECT_GAME " + choice + " " + challengerUsername);
 
             }
 
             // Get Color Loop
             else if(response.startsWith("CHOOSE_COLOR")){
-            	System.out.println("CHOOSE_COLOR");
-            	color = chooseColor();
-            	System.out.println("CHOOSE_COLOR: " + color);
-            	out.println("COLOR " + color);
+                System.out.println("CHOOSE_COLOR");
+                color = chooseColor();
+                System.out.println("CHOOSE_COLOR: " + color);
+                out.println("COLOR " + color);
             }
             else if(response.startsWith("SWITCH_COLOR")){
-            	color = response.charAt(13);
-            	System.out.println("SWITCHED_COLOR");
-        		out.println("SWITCHED_COLOR");            	
+                color = response.charAt(13);
+                System.out.println("SWITCHED_COLOR");
+                out.println("SWITCHED_COLOR");              
             }
             else if(response.startsWith("START_GAME")){
-            	break;
+                break;
             }
         }
         messageLabel.setText("Let's Play!");
@@ -280,7 +287,7 @@ public class ChessClient {
                 // Repaint() the board
                 
             } else if (response.startsWith("OPPONENT_MOVED")) {
-            	char fromX = response.charAt(15);
+                char fromX = response.charAt(15);
                 char fromY = response.charAt(16);
                 char toX = response.charAt(17);
                 char toY = response.charAt(18);
@@ -313,14 +320,14 @@ public class ChessClient {
      * @param toY The toY value of the chess piece
      */
     private void move(char fromX, char fromY, char toX, char toY) {
-		// TODO Auto-generated method stub
-		
-	}
+        // TODO Auto-generated method stub
+        
+    }
     /**
      * Prompts the user if they want to continue playing
      * @return 0 for yes and 1 for no.
      */
-	private boolean wantsToPlayAgain() {
+    private boolean wantsToPlayAgain() {
         int response = JOptionPane.showConfirmDialog(frame,
             "Want to play again?",
             null,
@@ -336,14 +343,35 @@ public class ChessClient {
      */
     static class Square extends JPanel {
         JLabel label = new JLabel((Icon)null);
+        int x,y;
 
-        public Square() {
-            setBackground(Color.white);
+        public Square(int myx,int myy) {
             add(label);
+            x=myx;y=myy;
+            if(x%2==0){
+                if(y%2==0){
+                    setBackground(Color.white);
+
+                }
+                else{
+                    setBackground(Color.black);
+                }
+            }
+            else{
+                if(y%2==0){
+                    setBackground(Color.black);
+
+                }
+                else{
+                    setBackground(Color.white);
+                }
+            }
         }
 
+        /* Unnecessary I think
         public void setIcon(Icon icon) {
             label.setIcon(icon);
         }
+        */
     }
 }
