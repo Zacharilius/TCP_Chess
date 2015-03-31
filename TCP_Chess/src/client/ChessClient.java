@@ -1,4 +1,4 @@
-//package client;
+package client;
 
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -364,6 +364,68 @@ public class ChessClient {
                 }
                 else{
                     setBackground(Color.white);
+                }
+            }
+            if(x==0){
+                switch(y){
+                    case 0:
+                        label.setIcon(new ImageIcon("images/brook.png"));
+                    break;
+                    case 1:
+                        label.setIcon(new ImageIcon("images/bknight.png"));
+                    break;
+                    case 2:
+                        label.setIcon(new ImageIcon("images/bbishop.png"));
+                    break;
+                    case 3:
+                        label.setIcon(new ImageIcon("images/bking.png"));
+                    break;
+                    case 4:
+                        label.setIcon(new ImageIcon("images/bqueen.png"));
+                    break;
+                    case 5:
+                        label.setIcon(new ImageIcon("images/bbishop.png"));
+                    break;
+                    case 6:
+                        label.setIcon(new ImageIcon("images/bknight.png"));
+                    break;
+                    case 7:
+                        label.setIcon(new ImageIcon("images/brook.png"));
+                    break;
+                }
+            }
+            else if(x==1){
+                label.setIcon(new ImageIcon("images/bpawn.png"));
+            }
+            else if(x==6){
+                label.setIcon(new ImageIcon("images/wpawn.png"));
+            }
+            else if(x==7){
+                switch(y){
+                    case 0:
+                        label.setIcon(new ImageIcon("images/wrook.png"));
+                    break;
+                    case 1:
+                        label.setIcon(new ImageIcon("images/wknight.png"));
+                    break;
+                    case 2:
+                        label.setIcon(new ImageIcon("images/wbishop.png"));
+                    break;
+                    case 3:
+                        label.setIcon(new ImageIcon("images/wking.png"));
+                    break;
+                    case 4:
+                        label.setIcon(new ImageIcon("images/wqueen.png"));
+                    break;
+                    case 5:
+                        label.setIcon(new ImageIcon("images/wbishop.png"));
+                    break;
+                    case 6:
+                        label.setIcon(new ImageIcon("images/wknight.png"));
+                    break;
+                    case 7:
+                        label.setIcon(new ImageIcon("images/wrook.png"));
+                    break;
                 }
             }
         }
