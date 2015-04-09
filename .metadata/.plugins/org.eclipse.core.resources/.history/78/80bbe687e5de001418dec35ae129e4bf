@@ -1,9 +1,9 @@
 package server;
 
 public class Board {
-	private Piece[][] pieces; //first column = x, second = y;
+    private Piece[][] pieces; //first column = x, second = y;
     private int whiteKingX, whiteKingY, blackKingX, blackKingY;
-    private boolean checkMate;
+    private boolean whiteKingCheck, blackKingCheck;
     private String moveMSG;
     
     public Board(){
@@ -12,8 +12,8 @@ public class Board {
     
     private void initialize(){
         pieces = new Piece[8][8];
+        whiteKingCheck = blackKingCheck = false;
         moveMSG = " ";
-        checkMate = false;
         
         //Initialize Rooks (4 Corners)
         pieces[0][0] = new Piece("Rook", true);
@@ -31,7 +31,7 @@ public class Board {
         
         //Initialize Bishops (Next to the Knights)
         pieces[2][0] = new Piece("Bishop", true);
-        pieces[5][0] = new Piece("Bishop", true);
+        pieces[7][4] = new Piece("Bishop", true); // 5,0
         
         pieces[2][7] = new Piece("Bishop", false);
         pieces[5][7] = new Piece("Bishop", false);
@@ -134,21 +134,8 @@ public class Board {
     }
     
     private boolean placesInCheckmate(boolean team){
-        int kingX, kingY;
-        String oppTeamName;
         boolean[][] moves;
         boolean canEscape = false;
-        if(team){ //team player is white, so get black king's location
-            kingX = blackKingX;
-            kingY = blackKingY;
-            oppTeamName = "Black";
-        }
-        else{ //team player is black, so get white king's location
-            kingX = whiteKingX;
-            kingY = whiteKingY;
-            oppTeamName = "White";
-        }
-        
         
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
@@ -482,7 +469,6 @@ public class Board {
     
     private boolean[][] getValidQueen(boolean[][] horizontal, boolean[][] diagonal){
         boolean[][] moves = new boolean[8][8];
-        boolean hasMoves = true;
         if(horizontal != null && diagonal != null){
             for(int i = 0; i < 8; i++){
                 for(int j = 0; j < 8; j++){
@@ -551,8 +537,13 @@ public class Board {
             
             pieces[x][y] = null;
             if(placesInCheck(newX,newY)){
-                checkMate = placesInCheckmate(team);
-                
+                boolean checkMate = placesInCheckmate(team); //if true, this needs to return up somehow
+                if(team){ //team is white
+                    whiteKingCheck = true;
+                }
+                else{
+                    blackKingCheck = true;
+                }
             }
             if(x == whiteKingX && y == whiteKingY){
                 whiteKingX = newX;
@@ -636,10 +627,6 @@ public class Board {
         }
         
         return letter;
-    }
-    
-    public boolean isCheckMate(){
-        return checkMate;
     }
     
 } //end of class

@@ -25,7 +25,6 @@ public class ChessServer {
     public static void main(String[] args) throws Exception {
         ServerSocket listener = new ServerSocket(PORT);
         test = new BoardTest();
-        //test.test();
         System.out.println("Chess Server is Running");
         try {
             while (true) {

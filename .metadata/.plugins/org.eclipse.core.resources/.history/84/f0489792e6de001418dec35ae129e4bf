@@ -3,7 +3,7 @@ package server;
 public class BoardTest {
 	public BoardTest(){}
 	
-	public void test(){
+	public void walkthrough(){
 		Board test = new Board();
         test.printBoard();
         boolean[][] validMoves = new boolean[8][8];
@@ -53,7 +53,6 @@ public class BoardTest {
         successfulMove = test.movePiece(x, y, newX, newY, validMoves);
         if(!successfulMove){
             System.out.println("This move endangers the king! Try another move!");
-            //! -- RESET THEM AT STEP 1 -- ! \\
         }
         else{
             strNewState = test.boardToString();
