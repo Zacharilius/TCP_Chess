@@ -3,7 +3,7 @@ package server;
 public class Board {
 	private Piece[][] pieces; //first column = x, second = y;
     private int whiteKingX, whiteKingY, blackKingX, blackKingY;
-    private boolean checkMate;
+    private boolean checkMate, whyInvalid;
     private String moveMSG;
     
     public Board(){
@@ -14,6 +14,7 @@ public class Board {
         pieces = new Piece[8][8];
         moveMSG = " ";
         checkMate = false;
+        whyInvalid = false;
         
         //Initialize Rooks (4 Corners)
         pieces[0][0] = new Piece("Rook", true);
@@ -80,12 +81,15 @@ public class Board {
         System.out.println("=========== ========== =========");
     }
     
-    public boolean[][] validMoves(int x, int y){
+    public boolean[][] validMoves(boolean team, int x, int y){
         boolean[][] moves = new boolean[8][8];
         if(pieces[x][y] == null){
             return null;
         }
         String type = pieces[x][y].getType();
+        if(team != pieces[x][y].getTeam()){
+        	return null;
+        }
         switch(type){
             case "Rook":
                 moves = getValidRook(x,y); break;
@@ -247,7 +251,7 @@ public class Board {
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 if(pieces[j][i] != null && pieces[j][i].getTeam() != team){
-                    moves = validMoves(j,i);
+                    moves = validMoves(team, j,i);
                     if(moves != null && moves[kingX][kingY]){
                         return true;
                     }
@@ -544,7 +548,7 @@ public class Board {
             boolean team = pieces[newX][newY].getTeam();
             if(endangersKing(team)){
                 System.out.println("THIS ENDANGERS THE KING!");
-                
+                whyInvalid = true;
                 swap(x, y, newX, newY);
                 return false;
             }
@@ -552,7 +556,6 @@ public class Board {
             pieces[x][y] = null;
             if(placesInCheck(newX,newY)){
                 checkMate = placesInCheckmate(team);
-                
             }
             if(x == whiteKingX && y == whiteKingY){
                 whiteKingX = newX;
@@ -567,6 +570,7 @@ public class Board {
         }
         else{
             System.out.println("--- INVALID MOVE ---");
+            whyInvalid = false;
             return false;
         }
     }
@@ -640,6 +644,10 @@ public class Board {
     
     public boolean isCheckMate(){
         return checkMate;
+    }
+    
+    public boolean whyInvalid(){
+    	return whyInvalid;
     }
     
 } //end of class
