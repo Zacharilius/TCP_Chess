@@ -17,14 +17,14 @@ public class ChessServer {
 
 	private static final int PORT = 9999;
 	public static HashMap<String, PlayerInfo> players= new HashMap<String, PlayerInfo>();
-	public static BoardTest test;
+	public static GameState test;
     /**
      * Runs the application. Pairs up clients that connect.
      * Creates a new thread for each player that connects.
      */
     public static void main(String[] args) throws Exception {
         ServerSocket listener = new ServerSocket(PORT);
-        test = new BoardTest();
+        test = new GameState();
         //test.test();
         System.out.println("Chess Server is Running");
         try {
