@@ -183,7 +183,7 @@ public class ChessClient {
      * char 'b' for black and 'w' for white.
      */
     private static char chooseColor(){
-        Object[] options = {"Black", "White"};
+        Object[] options = {"Black", "White", "I don't want to choose"};
         int n = JOptionPane.showOptionDialog(frame,
                 "Please Choose a Starting Color",
                 "Color Selection",
@@ -193,7 +193,8 @@ public class ChessClient {
                 options,  //the titles of buttons
                 options[0]); //default button title
         if(n == 0) return 'b';
-        return 'w';
+        else if(n == 1) return 'w';
+        return 'n';
     }
         
     /**
@@ -259,46 +260,37 @@ public class ChessClient {
                 System.out.println("CHOOSE_COLOR: " + color);
                 out.println("COLOR " + color);
             }
-            else if(response.startsWith("SWITCH_COLOR")){
-                color = response.charAt(13);
-                System.out.println("SWITCHED_COLOR");
-                out.println("SWITCHED_COLOR");              
-            }
+
             else if(response.startsWith("START_GAME")){
+                color = response.charAt(10);
+                messageLabel.setText("Let's Play! You are playing as " + color);
+                // Create both boards according to the received color
+                
                 break;
             }
         }
-        messageLabel.setText("Let's Play!");
+
 
         // Game Loop
         while (true) {
             response = in.readLine();
 
-            if (response.startsWith("ACCEPT_MOVE")) {
-                messageLabel.setText("Accepted move");
-                // Move piece on client board
-                char fromX = response.charAt(5);
-                char fromY = response.charAt(6);
-                char toX = response.charAt(7);
-                char toY = response.charAt(8);
-                messageLabel.setText("Accepted Move");
-                move(fromX, fromY,toX, toY);
-
-                // Repaint() the board
+            if(response.startsWith("YOUR_MOVE")){
+            	//Activate the player's board and allow move
+                messageLabel.setText("Your move");
+            	
+            }else if(response.startsWith("VALID_MOVES")){
+            	String validMoves = response.substring(12);
+            	// parse the validMoves string and highlight the valid moves on the board
+            	
+        	}else if(response.startsWith("NEW_BOARD")) {
+                messageLabel.setText("Board updated");
+                String newBoard = response.substring(10);
+                // Deactivate board
+                // Update display to show updated board. 
                 
-            } else if (response.startsWith("OPPONENT_MOVED")) {
-                char fromX = response.charAt(15);
-                char fromY = response.charAt(16);
-                char toX = response.charAt(17);
-                char toY = response.charAt(18);
-                messageLabel.setText("Opponent Moved: " + fromX + fromY + " to " + toX + toY);
-
-                // Move piece on client board
-                move(fromX, fromY,toX, toY);
                 
-                // ChessBoard.repaint()
-
-            } else if (response.startsWith("VICTORY")) {
+            }else if (response.startsWith("WIN")) {
                 messageLabel.setText("You win!!!");
                 break;
             } else if (response.startsWith("LOSE")) {
@@ -429,11 +421,5 @@ public class ChessClient {
                 }
             }
         }
-
-        /* Unnecessary I think
-        public void setIcon(Icon icon) {
-            label.setIcon(icon);
-        }
-        */
     }
 }

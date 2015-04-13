@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Random;
 /**
  * The main class of the TCP Chess game
  * @author Zach, Kyle, and Steve
@@ -70,7 +71,6 @@ public class ChessServer {
     	  String username = "";
     	  String opponentUsername = "";
     	  PrintWriter opponentOutput = output; // Initialized to output to allow for compilation.
-    	  
           try {
         	  // Gets username. Loops until a unique username is inputted by the client. 
               while (true) {
@@ -82,7 +82,8 @@ public class ChessServer {
 	                  synchronized (players) {
 	                      if (!players.containsKey(username) || username != null || 
 	                    		  username.charAt(0) != ' ') {
-	                          players.put(username, new PlayerInfo(output));
+	                          players.put(username, new PlayerInfo(output, input));
+	                          
 	                          output.println("NAMEACCEPTED");
 	                          System.out.println("NAMEACCEPTED");
 	                          break;
@@ -176,77 +177,100 @@ public class ChessServer {
             		  char oppColor = players.get(opponentUsername).getColor();
             		  System.out.println("oppColor: " + oppColor + " & myColor: " + myColor);
             		  
-            		  // Synchronized area to prevent both threads from accessing players
+            		  // Synchronized area to prevent multiple threads from updating players
             		  synchronized(players){
+            			  // If opponent hasn't selected a color yet
             			  if(oppColor == ' '){
-            				  System.out.println("oppColor: " + oppColor);
+            				  System.out.println("oppColor: <" + oppColor + ">");
             				  players.get(username).setColor(myColor);
-            				  System.out.println("gotten color: " + players.get(username).getColor());
-            				  output.println("START_GAME");
-            				  break;
+            				  System.out.println("First to select color: " + players.get(username).getColor());
+            				  //Does nothing and waits for opponent to contact with color choice
             			  }
+            			  // If opponent has entered no color choice
+            			  // If both opponents have entered no color choice
+            			  // If opponent entered no color choice and player chose a color
+            			  else if(oppColor == 'n'){
+            				  System.out.println("oppColor == 'n'");
+            				  if(myColor == 'n'){
+                				  System.out.println("myColor == 'n'");
+
+            					  Random r = new Random();
+            					  int randInt = r.nextInt(2);
+            					  
+            					  if(randInt == 1){
+                					  players.get(username).setColor('w');
+                					  players.get(opponentUsername).setColor('b');
+            					  }
+            					  if(randInt == 2){
+                					  players.get(username).setColor('b');
+                					  players.get(opponentUsername).setColor('w');
+            					  }
+            					  
+              				  }
+            				  else{
+            					  players.get(username).setColor(myColor);
+            					  if(myColor == 'b')players.get(opponentUsername).setColor('w');
+            					  else players.get(opponentUsername).setColor('b');
+            				  }
+            				  // START GAME
+            				  output.println("START_GAME " + players.get(username).getColor());
+            				  opponentOutput.println("START_GAME " + players.get(opponentUsername).getColor());
+            			  }
+            			  // If I chose no color choice and if opponent chose a color
+            			  else if(myColor == 'n'){
+        					  if(oppColor == 'b')players.get(username).setColor('w');
+        					  else players.get(username).setColor('b');
+        					  
+        					  // START GAME
+            				  output.println("START_GAME " + players.get(username).getColor());
+            				  opponentOutput.println("START_GAME " + players.get(opponentUsername).getColor());
+            			  }
+            			  //Players chose different colors then start game
             			  else if(myColor == 'w' && oppColor == 'b' || myColor == 'b' && oppColor == 'w' ){
+        					  players.get(username).setColor(myColor);
+        					  players.get(opponentUsername).setColor(oppColor);
             				  System.out.println("START_GAME sent");
-	            			  output.println("START_GAME");
-	            			  break;
+            				  output.println("START_GAME " + players.get(username).getColor());
+            				  opponentOutput.println("START_GAME " + players.get(opponentUsername).getColor());
 	            		  }
-            		  
-	            		  if(myColor == 'w'){
-	            			  players.get(username).setColor('b');
-	            			  myColor = 'b';
-	            		  }
+            			  
+            			  //Same color choices
 	            		  else{
-	            			  players.get(username).setColor('w');
-	            			  myColor = 'w';
+	            			  System.out.println("Same colors chosen");
+	            			  Random r = new Random();
+        					  int randInt = r.nextInt(2);
+        					  
+        					  if(randInt == 1){
+            					  players.get(username).setColor('w');
+            					  players.get(opponentUsername).setColor('b');
+        					  }
+        					  else if(randInt == 2){
+            					  players.get(username).setColor('b');
+            					  players.get(opponentUsername).setColor('w');
+        					  }
+        					  //Start Game
+            				  output.println("START_GAME " + players.get(username).getColor());
+            				  opponentOutput.println("START_GAME " + players.get(opponentUsername).getColor());
 	            		  }
-	            		  System.out.println("SWITCH_COLOR: " + myColor);
-	            		  output.println("SWITCH_COLOR " + myColor);
-            		  }
+                          System.out.println("Completed Player Selection Stage: " + username);
+                  		  System.out.println("MyColor: " + players.get(username).getColor());
+                		  System.out.println("OppColor: " + players.get(opponentUsername).getColor());
+            			  
+            			  //Starts new class of GameState. Then creates new thread
+            			  GameState game = new GameState();
+            			  if(players.get(username).getColor() == 'w') game.run(output, input, players.get(opponentUsername).getOutput(), players.get(opponentUsername).getInput());
+            			  else  game.run(players.get(opponentUsername).getOutput(), players.get(opponentUsername).getInput(), output, input);
+            			  break;
+               		  }
             	  }
-            	  else if (playerSelection.startsWith("SWITCHED_COLOR")) {
-            		  System.out.println("MyColor: " + players.get(username).getColor());
-            		  System.out.println("OppColor: " + players.get(opponentUsername).getColor());
-
-            		  output.println("START_GAME");
-            		  break;
-            	  }  
             	  else{
-            		  System.out.println("Ohhhh shit...what was entered: " + playerSelection);
-            	  }
-	           
-
+            		  System.out.println("Misunderstood communication: " + playerSelection);
+            	  }  
               }
-              System.out.println("Completed Player Selection Stage");
-              
-              // Game loop
-              while (true) {
-                  String command = input.readLine();
-                  if (command.startsWith("MOVE")) {
-                      char fromX = command.charAt(5);
-                      char fromY = command.charAt(6);
-                      char toX = command.charAt(7);
-                      char toY = command.charAt(8);
-
-                      if (checkMove(fromX,fromY, toX, toY)) {
-                          output.println("ACCEPT_MOVE");
-                          
-                          if(checkMate()){
-                        	  output.println("VICTORY");
-                        	  opponentOutput.println("LOSE");
-                        	  break;
-                          }
-                          if(checkStalemate()){
-                        	  output.println("TIE");
-                        	  opponentOutput.println("TIE");
-                        	  break;
-                          }
-                      } else {
-                          output.println("MESSAGE Unrecognized Message");
-                      }
-                  } else if (command.startsWith("QUIT")) {
-                      return;
-                  }
-              }              
+              System.out.println("Completed Player Selection Stage: " + username);
+      		  System.out.println("MyColor: " + players.get(username).getColor());
+    		  System.out.println("OppColor: " + players.get(opponentUsername).getColor());
+                       
 	      } catch (IOException e) {
 	          System.out.println(e);
 	      } finally {
@@ -311,11 +335,12 @@ public class ChessServer {
      */
     private static class PlayerInfo{
         private PrintWriter output;
+        private BufferedReader input;
         private char color = ' ';
         private boolean haveOpponent = false;
         
-        public PlayerInfo(PrintWriter output){
-        	
+        public PlayerInfo(PrintWriter output, BufferedReader input){
+        	this.input = input;
         	this.output = output;
         }
         public void setColor(char c){
@@ -330,5 +355,9 @@ public class ChessServer {
         public void setOpponent(){
         	haveOpponent = true;
         }
+        public BufferedReader getInput(){
+        	return input;
+        }
+
     }
 }

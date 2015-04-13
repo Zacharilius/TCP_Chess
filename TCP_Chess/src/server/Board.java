@@ -115,8 +115,10 @@ public class Board {
     }
     
     private boolean placesInCheck(int x, int y){
-        boolean[][] moves = validMoves(x,y);
         boolean team = pieces[x][y].getTeam();
+        // Moved team above and placed team inside validMoves - Zach
+        boolean[][] moves = validMoves(team, x,y);
+
         int kingX, kingY;
         String oppTeamName; //unnecessary, but good for printing
         if(team){ //team player is white, so get black king's location
@@ -157,7 +159,8 @@ public class Board {
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 if(pieces[j][i] != null && pieces[j][i].getTeam() != team){
-                    moves = validMoves(j,i);
+                	//Added team to validMoves so it would compile - Zach
+                    moves = validMoves(team, j,i);
                     if(moves != null){
                         canEscape = canEscapeCheck(j,i,moves);
                         if(canEscape){
