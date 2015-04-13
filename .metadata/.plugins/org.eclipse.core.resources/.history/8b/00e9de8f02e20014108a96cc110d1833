@@ -87,7 +87,7 @@ public class GameState {
                  * If it returns true, send the message to both clients on the new state 
                  * of the system.
                  * 
-                 * Server makes the assumption that the user must send up a vaild move. 
+                 * Server makes the asssumption that the user must send up a vaild move. 
                  * Client will have a list of the valid moves already sent to them so
                  * they can regulate this and send the proper ones to the server.
                  */
