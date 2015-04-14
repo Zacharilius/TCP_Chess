@@ -32,12 +32,14 @@ public class ChessClient {
     private static JFrame frame = new JFrame("TCP Chess");
     private JLabel messageLabel = new JLabel("");
     private static ImageIcon icon;
-    private ImageIcon opponentIcon;
+    //private ImageIcon opponentIcon;
 
-    //private Square[] board = new Square[9];
-    private Square[][] board = new Square[8][8];
-    private Square currentSquare;
-
+    private MySquare[][] board = new MySquare[8][8];
+    //private MySquare currentSquare;
+    private boolean playerIsBlack=false; //Change this value upon selection of color. DO NOT HARDCODE!
+    private boolean isYourTurn=true; //Change this value upon start(true)/end(false) of your turn. DO NOT HARDCODE!
+    private boolean readyToMove=true; //Change this value to true upon reception of valid moves. false when turn starts, and false when invalid move is chosen DO NOT HARDCODE!
+    private JPanel boardPanel = new JPanel();
 
     private Socket socket;
     private BufferedReader in;
@@ -62,23 +64,50 @@ public class ChessClient {
         messageLabel.setBackground(Color.lightGray);
         frame.getContentPane().add(messageLabel, "South");
 
-        JPanel boardPanel = new JPanel();
         boardPanel.setBackground(Color.black);
         boardPanel.setLayout(new GridLayout(board.length, board[0].length, 2, 2));
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 final int fi =i;
                 final int fj =j;
-                board[i][j] = new Square(i,j);
+                board[i][j] = new MySquare(i,j);
                 board[i][j].addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
-                        currentSquare = board[fi][fj];
-                        out.println("Clicked " + fi+","+fj);}});
-                        //out.println("MOVE " + j);}});
+                        //currentSquare = board[fi][fj];
+                    	if(isYourTurn){
+                    		if(readyToMove){
+                    			if(board[fi][fj].isEnabled()){
+                        			out.println("MOVE "+fi+""+fj);
+                    			}
+                    			else{
+                    				unhighlightAll();
+                    				//out.println("MOVE 99");
+                    			}
+                    		}
+                    		else{
+                    			if(board[fi][fj].isEnabled()){
+                        			out.println("CHECK_MOVE "+fi+""+fj);
+                    			}
+                    			else{
+                    				//DO NOTHING!!!!
+                    			}
+                    		}
+                    	}
+                    	else{
+                    		out.println("Hey! It's not your turn "+(playerIsBlack?"Black":"White")+"y!");
+                    	}
+                    }});
                 boardPanel.add(board[i][j]);
             }
         }
         frame.getContentPane().add(boardPanel, "Center");
+        
+        if(!playerIsBlack){//Move this logic to place where color gets chosen AFTER playerIsBlack has been set
+            flipBoard();//When this is called, white is put on the bottom. Default: black is on bottom
+        }
+        //highlightSpaces("1000000000000000000000000000001110011010110110101011100110110011");
+        //updateBoardState("kKkKkKkpQqQqQqQP_b_B_rRp_______p_______P___N___p_______R_______n");
+        updateBoardState("rnbqkbnrpppppppp________________________________PPPPPPPPRNBQKBNR");
     }
     /**
      * Runs ChessClient. If args is empty, it asks the user
@@ -275,20 +304,31 @@ public class ChessClient {
         while (true) {
             response = in.readLine();
 
-            if(response.startsWith("YOUR_MOVE")){
+            if(response.startsWith("YOUR_MOVE")){//MUST BE CALLED AFTER NEW_BOARD to set isYourTurn to true. NEW_BOARD sets isYourTurn to false
             	//Activate the player's board and allow move
                 messageLabel.setText("Your move");
+                isYourTurn=true;
             	
             }else if(response.startsWith("VALID_MOVES")){
             	String validMoves = response.substring(12);
             	// parse the validMoves string and highlight the valid moves on the board
+                if(validMoves!=null){
+                	highlightSpaces(validMoves.trim());
+                    readyToMove=true;
+                }
+                else{
+                	System.out.println("No valid moves for that piece.");
+                	readyToMove=false;
+                }
             	
         	}else if(response.startsWith("NEW_BOARD")) {
                 messageLabel.setText("Board updated");
                 String newBoard = response.substring(10);
                 // Deactivate board
                 // Update display to show updated board. 
-                
+                isYourTurn=false;
+                readyToMove=false;
+                updateBoardState(newBoard.trim());
                 
             }else if (response.startsWith("WIN")) {
                 messageLabel.setText("You win!!!");
@@ -304,17 +344,7 @@ public class ChessClient {
             }
         }
     }
-    /**
-     * Not implemented yet
-     * @param fromX The fromX value of the chess piece
-     * @param fromY The fromY value of the chess piece
-     * @param toX The toX value of the chess piece
-     * @param toY The toY value of the chess piece
-     */
-    private void move(char fromX, char fromY, char toX, char toY) {
-        // TODO Auto-generated method stub
-        
-    }
+
     /**
      * Prompts the user if they want to continue playing
      * @return 0 for yes and 1 for no.
@@ -327,99 +357,127 @@ public class ChessClient {
         frame.dispose();
         return response == JOptionPane.YES_OPTION;
     }
-
+    
+   //v~~~~~~~~~~~~~~~~~~~~~~~~~~~v~~~~~~~~~~~~~~~~~~~~~~~~~v~GUI FUNCTIONS!~v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~v~~~~~~~~~~~~~~~~~~~~v~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~v
+    
     /**
-     * Graphical square in the client window.  Each square is
-     * a white panel containing.  A client calls setIcon() to fill
-     * it with an Icon, presumably an X or O.
+     * Highlight and enable valid squares received from the server.  Disable invalid squares
+     * @param spaces: String representation of spaces. 1=potential move. 0=not potential move
      */
-    static class Square extends JPanel {
-        JLabel label = new JLabel((Icon)null);
-        int x,y;
-
-        public Square(int myx,int myy) {
-            add(label);
-            x=myx;y=myy;
-            if(x%2==0){
-                if(y%2==0){
-                    setBackground(Color.white);
-
-                }
-                else{
-                    setBackground(Color.black);
-                }
-            }
-            else{
-                if(y%2==0){
-                    setBackground(Color.black);
-
-                }
-                else{
-                    setBackground(Color.white);
-                }
-            }
-            if(x==0){
-                switch(y){
-                    case 0:
-                        label.setIcon(new ImageIcon("images/brook.png"));
-                    break;
-                    case 1:
-                        label.setIcon(new ImageIcon("images/bknight.png"));
-                    break;
-                    case 2:
-                        label.setIcon(new ImageIcon("images/bbishop.png"));
-                    break;
-                    case 3:
-                        label.setIcon(new ImageIcon("images/bking.png"));
-                    break;
-                    case 4:
-                        label.setIcon(new ImageIcon("images/bqueen.png"));
-                    break;
-                    case 5:
-                        label.setIcon(new ImageIcon("images/bbishop.png"));
-                    break;
-                    case 6:
-                        label.setIcon(new ImageIcon("images/bknight.png"));
-                    break;
-                    case 7:
-                        label.setIcon(new ImageIcon("images/brook.png"));
-                    break;
-                }
-            }
-            else if(x==1){
-                label.setIcon(new ImageIcon("images/bpawn.png"));
-            }
-            else if(x==6){
-                label.setIcon(new ImageIcon("images/wpawn.png"));
-            }
-            else if(x==7){
-                switch(y){
-                    case 0:
-                        label.setIcon(new ImageIcon("images/wrook.png"));
-                    break;
-                    case 1:
-                        label.setIcon(new ImageIcon("images/wknight.png"));
-                    break;
-                    case 2:
-                        label.setIcon(new ImageIcon("images/wbishop.png"));
-                    break;
-                    case 3:
-                        label.setIcon(new ImageIcon("images/wking.png"));
-                    break;
-                    case 4:
-                        label.setIcon(new ImageIcon("images/wqueen.png"));
-                    break;
-                    case 5:
-                        label.setIcon(new ImageIcon("images/wbishop.png"));
-                    break;
-                    case 6:
-                        label.setIcon(new ImageIcon("images/wknight.png"));
-                    break;
-                    case 7:
-                        label.setIcon(new ImageIcon("images/wrook.png"));
-                    break;
-                }
+    private void highlightSpaces(String spaces){
+    	if(spaces.length()!=64){
+    		System.err.println("Error: highlightSpaces. String not long enough");
+    		return;
+    	}
+    	if(!playerIsBlack){
+            spaces=new StringBuilder(spaces).reverse().toString();
+    	}
+    	for(int i=0;i<spaces.length();++i){
+    		if(spaces.charAt(i)=='1'){
+        		board[i/board.length][i%board.length].highlightMe();
+        		board[i/board.length][i%board.length].enable();
+    		}
+    		else{
+    			board[i/board.length][i%board.length].disable();
+    		}
+    	}
+    }
+    
+    /**
+     * Unhighlight all board squares.
+     */
+    private void unhighlightAll(){
+    	for(int i=0;i<board.length;i++){
+    		for(int j=0;j<board[0].length;++j){
+    			board[i][j].unhighlightMe();
+    		}
+    	}
+    }
+    
+    private void updateBoardState(String state){
+    	if(state.length()!=64){
+    		System.err.println("Error: updateBoardState. String not long enough");
+    		return;
+    	}
+    	if(!playerIsBlack){
+            state=new StringBuilder(state).reverse().toString();
+    	}
+    	for(int i=0;i<state.length();++i){
+    		board[i/board.length][i%board.length].changePiece(state.charAt(i));
+    		if(Character.isLowerCase(state.charAt(i))){//white piece
+    			if(!playerIsBlack){
+        			board[i/board.length][i%board.length].enable();
+    			}
+    			else{
+        			board[i/board.length][i%board.length].disable();
+    			}
+    		}
+    		else if(Character.isUpperCase(state.charAt(i))){//black piece
+    			if(!playerIsBlack){
+        			board[i/board.length][i%board.length].disable();
+    			}
+    			else{
+        			board[i/board.length][i%board.length].enable();
+    			}
+    		}
+    		else{//vacant spot
+    			board[i/board.length][i%board.length].disable();
+    		}
+    	}
+    }
+    
+    private void flipBoard(){
+    	for(int i=0;i<board.length;i++){
+    		for(int j=0;j<board[i].length/2;++j){
+    			MySquare temp= board[i][j];
+    			board[i][j]=board[board.length-i-1][board.length-j-1];
+    			board[board.length-i-1][board.length-j-1]=temp;
+    		}
+    	}
+    	boardPanel.removeAll();
+    	messageLabel.setBackground(Color.lightGray);
+        frame.getContentPane().add(messageLabel, "South");
+        boardPanel.setBackground(Color.black);
+        boardPanel.setLayout(new GridLayout(board.length, board[0].length, 2, 2));
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                final int fi =i;
+                final int fj =j;
+                board[i][j].removeMouseListener(board[i][j].getMouseListeners()[0]);
+                board[i][j].addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        //currentSquare = board[fi][fj];
+                    	if(isYourTurn){
+                    		if(readyToMove){
+                    			if(board[fi][fj].isEnabled()){
+                        			out.println("MOVE "+(8-fi-1)+""+(8-fj-1));
+                    			}
+                    			else{
+                    				unhighlightAll();
+                    				//out.println("MOVE99");
+                    			}
+                    		}
+                    		else{
+                    			if(board[fi][fj].isEnabled()){
+                        			out.println("CHECK_MOVE "+(8-fi-1)+""+(8-fj-1));
+                    			}
+                    			else{
+                    				//DO NOTHING!!!!
+                    			}
+                    		}
+                    	}
+                    	else{
+                    		out.println("Hey! It's not your turn "+(playerIsBlack?"Black":"White")+"y!");
+                    	}
+                    	/*
+                        if(board[fi][fj].isEnabled()){
+                            out.println("Clicked ON REVERSE" + (8-fi-1)+","+(8-fj-1));
+                        }
+                        */
+                    }});
+                boardPanel.add(board[i][j]);
             }
         }
+        frame.getContentPane().add(boardPanel, "Center");
     }
 }
