@@ -173,103 +173,119 @@ public class ChessServer {
             		  
             	  }
             	  else if(playerSelection.startsWith("COLOR")){
+
+            		  //Gets color from client. Sets player's color to 
             		  char myColor = playerSelection.charAt(6);
             		  char oppColor = players.get(opponentUsername).getColor();
             		  System.out.println("oppColor: " + oppColor + " & myColor: " + myColor);
             		  
-            		  // Synchronized area to prevent multiple threads from updating players
-            		  synchronized(players){
-            			  // If opponent hasn't selected a color yet
-            			  if(oppColor == ' '){
-            				  System.out.println("oppColor: <" + oppColor + ">");
-            				  players.get(username).setColor(myColor);
-            				  System.out.println("First to select color: " + players.get(username).getColor());
-            				  //Does nothing and waits for opponent to contact with color choice
-            			  }
-            			  // If opponent has entered no color choice
-            			  // If both opponents have entered no color choice
-            			  // If opponent entered no color choice and player chose a color
-            			  else if(oppColor == 'n'){
-            				  System.out.println("oppColor == 'n'");
-            				  if(myColor == 'n'){
-                				  System.out.println("myColor == 'n'");
-
-            					  Random r = new Random();
-            					  int randInt = r.nextInt(2);
-            					  
-            					  if(randInt == 1){
-                					  players.get(username).setColor('w');
-                					  players.get(opponentUsername).setColor('b');
-            					  }
-            					  if(randInt == 2){
-                					  players.get(username).setColor('b');
-                					  players.get(opponentUsername).setColor('w');
-            					  }
-            					  
-              				  }
-            				  else{
-            					  players.get(username).setColor(myColor);
-            					  if(myColor == 'b')players.get(opponentUsername).setColor('w');
-            					  else players.get(opponentUsername).setColor('b');
-            				  }
-            				  // START GAME
-            				  output.println("START_GAME " + players.get(username).getColor());
-            				  opponentOutput.println("START_GAME " + players.get(opponentUsername).getColor());
-            			  }
-            			  // If I chose no color choice and if opponent chose a color
-            			  else if(myColor == 'n'){
-        					  if(oppColor == 'b')players.get(username).setColor('w');
-        					  else players.get(username).setColor('b');
-        					  
-        					  // START GAME
-            				  output.println("START_GAME " + players.get(username).getColor());
-            				  opponentOutput.println("START_GAME " + players.get(opponentUsername).getColor());
-            			  }
-            			  //Players chose different colors then start game
-            			  else if(myColor == 'w' && oppColor == 'b' || myColor == 'b' && oppColor == 'w' ){
-        					  players.get(username).setColor(myColor);
-        					  players.get(opponentUsername).setColor(oppColor);
-            				  System.out.println("START_GAME sent");
-            				  output.println("START_GAME " + players.get(username).getColor());
-            				  opponentOutput.println("START_GAME " + players.get(opponentUsername).getColor());
-	            		  }
-            			  
-            			  //Same color choices
-	            		  else{
-	            			  System.out.println("Same colors chosen");
-	            			  Random r = new Random();
+        			  //If the current player is the first to log in 
+        			  if(oppColor == ' '){
+        				  System.out.println("First opponent submit color");
+        			  }
+        			  //If the opponent chose not to pick a color
+        			  else if(oppColor == 'n'){
+        				  System.out.println("Opponent didn't choose a color");
+        				  //If current player's color is white
+        				  if(myColor == 'w'){
+        					  oppColor = 'b';
+        				  }
+        				  //If current player's color is black
+        				  else if(myColor == 'b'){
+        					  oppColor = 'w';
+        				  }
+        				  //If current player also hasn't chose a color. Randomly assign a color
+        				  else{
+        					  Random r = new Random();
         					  int randInt = r.nextInt(2);
-        					  
         					  if(randInt == 1){
-            					  players.get(username).setColor('w');
-            					  players.get(opponentUsername).setColor('b');
+        						  myColor = 'b';
+        						  oppColor = 'w';
         					  }
-        					  else if(randInt == 2){
-            					  players.get(username).setColor('b');
-            					  players.get(opponentUsername).setColor('w');
+        					  else{
+        						  myColor = 'w';
+        						  oppColor = 'b';
         					  }
-        					  //Start Game
-            				  output.println("START_GAME " + players.get(username).getColor());
-            				  opponentOutput.println("START_GAME " + players.get(opponentUsername).getColor());
-	            		  }
-                          System.out.println("Completed Player Selection Stage: " + username);
-                  		  System.out.println("MyColor: " + players.get(username).getColor());
-                		  System.out.println("OppColor: " + players.get(opponentUsername).getColor());
-            			  
-            			  //Starts new class of GameState. Then creates new thread
-            			  GameState game = new GameState();
-            			  if(players.get(username).getColor() == 'w') game.run(output, input, players.get(opponentUsername).getOutput(), players.get(opponentUsername).getInput());
-            			  else  game.run(players.get(opponentUsername).getOutput(), players.get(opponentUsername).getInput(), output, input);
-            			  break;
-               		  }
+        				  }
+        				  
+        			  }
+        			  else if(oppColor == 'w'){
+        				  System.out.println("Opponent choose w");
+        				  //If current player's color is white
+        				  if(myColor == 'w'){
+        					  Random r = new Random();
+        					  int randInt = r.nextInt(2);
+        					  if(randInt == 1){
+        						  myColor = 'b';
+        						  oppColor = 'w';
+        					  }
+        					  else{
+        						  myColor = 'w';
+        						  oppColor = 'b';
+        					  }            
+        				  }
+        				  //If current player did not choose color
+        				  else if(myColor == 'n'){
+        					  myColor = 'b';
+        				  }
+        			  }
+        			  else if(oppColor == 'b'){
+        				  if(myColor == 'n'){
+        					  myColor = 'w';
+        				  }
+        				  //If current player's color is also black
+        				  if(myColor == 'b'){
+        					  Random r = new Random();
+        					  int randInt = r.nextInt(2);
+        					  if(randInt == 1){
+        						  myColor = 'b';
+        						  oppColor = 'w';
+        					  }
+        					  else{
+        						  myColor = 'w';
+        						  oppColor = 'b';
+        					  }            
+        				  }
+        				  
+        			  }
+        			  // Synchronized area to prevent multiple threads from updating players
+        			  // Sets both colors in the players HashSet
+        			  synchronized(players){
+        				  players.get(username).setColor(myColor);
+        				  players.get(opponentUsername).setColor(oppColor);
+	                      System.out.println("Completed Player Selection Stage: " + username);
+	              		  System.out.println("MyColor: " + players.get(username).getColor());
+	            		  System.out.println("OppColor: " + players.get(opponentUsername).getColor());
+        			  }
+        			  // If first player to log in, then sleep.
+        			  if(players.get(opponentUsername).getColor() == ' '){
+        				  try {
+							Thread.sleep(420000000);
+							System.out.println("Snorlax woke up! It attacked in a grumpy rage.");
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							System.out.println("Snorlax did not sleep");
+							e.printStackTrace();
+						}
+        			  }
+        			  // Else, then all colors have been set and negotiation is complete. Start game.
+        			  //Starts new class of GameState. Then creates new thread
+        			  //Sends start game message to both players
+        			  else{
+        				  output.println("START_GAME " + myColor);
+        				  players.get(opponentUsername).getOutput().println("START_GAME " + oppColor);
+	        			  GameState game = new GameState();
+	        			  if(players.get(username).getColor() == 'w') game.run(output, input, players.get(opponentUsername).getOutput(), players.get(opponentUsername).getInput());
+	        			  else  game.run(players.get(opponentUsername).getOutput(), players.get(opponentUsername).getInput(), output, input);
+        			  }
+        			  break;
             	  }
+            	  
             	  else{
             		  System.out.println("Misunderstood communication: " + playerSelection);
-            	  }  
+            	  }
               }
-              System.out.println("Completed Player Selection Stage: " + username);
-      		  System.out.println("MyColor: " + players.get(username).getColor());
-    		  System.out.println("OppColor: " + players.get(opponentUsername).getColor());
+              System.out.println("Exiting while loop: " + username);
                        
 	      } catch (IOException e) {
 	          System.out.println(e);

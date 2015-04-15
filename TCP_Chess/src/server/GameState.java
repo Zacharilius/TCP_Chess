@@ -52,12 +52,12 @@ public class GameState {
                  * This also makes the assumption the piece clicked could be null.
                  */
                 // Waits for response from the user
-// Receives message <CHECK_MOVE_RESPONSE ##>
+// Receives message <CHECK_MOVE ##>
             	String step1Response = input.readLine();
             	
                 successfulMove = false;
                 //       coord = "11"; //-- ! GET THE VALUES FROM THE CLIENT ! --\\
-                coord = step1Response.substring(20);
+                coord = step1Response.substring(11);
                 if(coord.equals("99"))break;
                 x = coord.charAt(0) - 48;
                 y = coord.charAt(1) - 48;
