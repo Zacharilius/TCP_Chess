@@ -38,7 +38,7 @@ public class ChessClient {
     //private MySquare currentSquare;
     private boolean playerIsBlack=false; //Change this value upon selection of color. DO NOT HARDCODE!
     private boolean isYourTurn=true; //Change this value upon start(true)/end(false) of your turn. DO NOT HARDCODE!
-    private boolean readyToMove=true; //Change this value to true upon reception of valid moves. false when turn starts, and false when invalid move is chosen DO NOT HARDCODE!
+    private boolean readyToMove=false; //Change this value to true upon reception of valid moves. false when turn starts, and false when invalid move is chosen DO NOT HARDCODE!
     private JPanel boardPanel = new JPanel();
 
     private Socket socket;

@@ -2,12 +2,16 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="PlayerInfo" key="selection"/>
+		<item value="readyToMove" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="readyToMove"/>
+			<item value="MOVE"/>
+			<item value="//Move this logic"/>
+			<item value="CHECK_MOVE"/>
 			<item value="PlayerInfo"/>
 			<item value="Player"/>
 		</list>
