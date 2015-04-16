@@ -34,6 +34,7 @@ public class GameState {
         while(runGame){
             while(!switchTurn){
                 System.out.println("!switchTurn");
+                switchTurn = false;
                 if(isWhite){
                 System.out.println("isWhite");
                     //!-- make the local buffer equal to the player that's white --!\\
@@ -50,7 +51,7 @@ public class GameState {
                 //Sends message to current player saying that it is their turn. Waits for a message from them
                 
                 output.println("YOUR_MOVE");                
-                switchTurn = false;
+                
                 
                 /* -- Step 1: User sends x and y value to the server that they want to check for valid moves.
                  * This makes the assumption that it's sending a string with two values, x and y. 
@@ -139,7 +140,7 @@ public class GameState {
                 if(successfulMove){
                     System.out.println("Successful Move");
                     isWhite = !isWhite;
-                    switchTurn = false;
+                    switchTurn = true;
                 }
                 System.out.println("Ending");
                 System.out.println("runGame: " + runGame);
