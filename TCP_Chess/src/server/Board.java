@@ -118,6 +118,9 @@ public class Board {
         boolean team = pieces[x][y].getTeam();
         // Moved team above and placed team inside validMoves - Zach
         boolean[][] moves = validMoves(team, x,y);
+        if(moves == null){
+            return false;
+        }
 
         int kingX, kingY;
         String oppTeamName; //unnecessary, but good for printing
@@ -161,6 +164,7 @@ public class Board {
                 if(pieces[j][i] != null && pieces[j][i].getTeam() != team){
                 	//Added team to validMoves so it would compile - Zach
                     moves = validMoves(team, j,i);
+                    moves = validMoves(!team, j,i);
                     if(moves != null){
                         canEscape = canEscapeCheck(j,i,moves);
                         if(canEscape){

@@ -338,6 +338,7 @@ public class ChessClient {
                 isYourTurn=false;
                 readyToMove=false;
                 updateBoardState(newBoard.trim());
+                unhighlightAll();
                 
             }else if (response.startsWith("WIN")) {
                 messageLabel.setText("You win!!!");

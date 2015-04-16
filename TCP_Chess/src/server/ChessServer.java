@@ -143,7 +143,7 @@ public class ChessServer {
             	  // 
             	  else if(playerSelection.startsWith("ACCEPT_OR_REJECT_GAME")){
             		  char acceptOrReject = playerSelection.charAt(22);
-            		  // If user responded with 0, set opponent name to received valueS
+            		  // If user responded with 0, Accept. set opponent name to received valueS
             		  if(acceptOrReject == '0'){
             			  String acceptedOpponent = playerSelection.substring(24);
             			  if(players.containsKey(acceptedOpponent)){
@@ -163,9 +163,12 @@ public class ChessServer {
             				  System.out.println("Opponent not in HashSet");
             			  }
             		  }
+                 // If user responded with 1, Reject
+
             		  else if(acceptOrReject == '1') {
             			  System.out.println("MESSAGE " + username + " rejected your request");
-            			  output.println("MESSAGE " + username + " rejected your request");
+                    System.out.println("opponentUsername: " + opponentUsername);
+            			  opponentOutput.println("MESSAGE " + username + " rejected your request");
             		  }
             		  
             		  else System.out.println("ERROR: Unrecognized acceptOrReject Value");
@@ -296,8 +299,8 @@ public class ChessServer {
 	        	  System.out.println("Closing");
 	        	  input.close();
 	        	  output.close();
-	              socket.close();
-	              players.remove(username);
+	            socket.close();
+	            players.remove(username);
 	          } catch (IOException e) {
 	          }
 	      }
