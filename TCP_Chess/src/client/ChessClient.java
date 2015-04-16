@@ -77,7 +77,7 @@ public class ChessClient {
                     	if(isYourTurn){
                     		if(readyToMove){
                     			if(board[fi][fj].isEnabled()){
-                        			out.println("MOVE "+fi+""+fj);
+                        			out.println("MOVE "+fj+""+fi);
                     			}
                     			else{
                     				unhighlightAll();
@@ -86,7 +86,7 @@ public class ChessClient {
                     		}
                     		else{
                     			if(board[fi][fj].isEnabled()){
-                        			out.println("CHECK_MOVE "+fi+""+fj);
+                        			out.println("CHECK_MOVE "+fj+""+fi);
                     			}
                     			else{
                     				//DO NOTHING!!!!
@@ -306,7 +306,7 @@ public class ChessClient {
         // Game Loop
         while (true) {
             response = in.readLine();
-
+            System.out.println("response: " + response);
             if(response.startsWith("YOUR_MOVE")){//MUST BE CALLED AFTER NEW_BOARD to set isYourTurn to true. NEW_BOARD sets isYourTurn to false
             	//Activate the player's board and allow move
             	
@@ -316,6 +316,8 @@ public class ChessClient {
             	
             }else if(response.startsWith("VALID_MOVES")){
             	String validMoves = response.substring(12);
+            	System.out.println(response);
+            	System.out.println(validMoves);
             	// parse the validMoves string and highlight the valid moves on the board
                 if(validMoves!=null){
                 	highlightSpaces(validMoves.trim());
@@ -329,6 +331,8 @@ public class ChessClient {
         	}else if(response.startsWith("NEW_BOARD")) {
                 messageLabel.setText("Board updated");
                 String newBoard = response.substring(10);
+                System.out.println(response);
+                System.out.println(newBoard);
                 // Deactivate board
                 // Update display to show updated board. 
                 isYourTurn=false;
@@ -455,7 +459,7 @@ public class ChessClient {
                     	if(isYourTurn){
                     		if(readyToMove){
                     			if(board[fi][fj].isEnabled()){
-                        			out.println("MOVE "+(8-fi-1)+""+(8-fj-1));
+                        			out.println("MOVE "+(8-fj-1)+""+(8-fi-1));
                     			}
                     			else{
                     				unhighlightAll();
@@ -464,7 +468,7 @@ public class ChessClient {
                     		}
                     		else{
                     			if(board[fi][fj].isEnabled()){
-                        			out.println("CHECK_MOVE "+(8-fi-1)+""+(8-fj-1));
+                        			out.println("CHECK_MOVE "+(8-fj-1)+""+(8-fi-1));
                     			}
                     			else{
                     				//DO NOTHING!!!!
