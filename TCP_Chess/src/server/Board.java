@@ -579,9 +579,42 @@ public class Board {
     }
     
     private void swap(int x1, int y1, int x2, int y2){
+        if(isKing(x1,y1) || isKing(x2,y2)){
+            swapKing(x1,y1,x2,y2);
+        }
         Piece temp = pieces[x1][y1];
         pieces[x1][y1] = pieces[x2][y2];
         pieces[x2][y2] = temp;
+    }
+    
+    private boolean isKing(int x, int y){
+        return pieces[x][y] != null && pieces[x][y].getType().equals("King");
+    }
+    
+    private void swapKing(int x1, int y1, int x2, int y2){
+        boolean team;
+        if(isKing(x1,y1)){ //first piece is King
+            team = pieces[x1][y1].getTeam();
+            if(team){ //swap white pieces
+                whiteKingX = x2;
+                whiteKingY = y2;
+            }
+            else{
+                blackKingX = x2;
+                blackKingY = y2;
+            }
+        }
+        if(isKing(x2,y2)){ //second piece is King
+            team = pieces[x2][y2].getTeam();
+            if(team){ //swap white pieces
+                whiteKingX = x1;
+                whiteKingY = y1;
+            }
+            else{
+                blackKingX = x1;
+                blackKingY = y1;
+            }
+        }
     }
     
     public void printKing(boolean team){
