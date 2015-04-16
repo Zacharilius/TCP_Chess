@@ -160,7 +160,7 @@ public class Board {
             for(int j = 0; j < 8; j++){
                 if(pieces[j][i] != null && pieces[j][i].getTeam() != team){
                 	//Added team to validMoves so it would compile - Zach
-                    moves = validMoves(team, j,i);
+                    moves = validMoves(!team, j,i);
                     if(moves != null){
                         canEscape = canEscapeCheck(j,i,moves);
                         if(canEscape){
