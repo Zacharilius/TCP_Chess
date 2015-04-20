@@ -545,14 +545,17 @@ public class Board {
     }
     
     public boolean movePiece(int x, int y, int newX, int newY, boolean[][] moves){
-        if(moves != null && moves[newX][newY]){
-            swap(x, y, newX, newY);
+    	if(moves != null && moves[newX][newY]){
+            Piece temp = swap(x, y, newX, newY);
             moveMSG = "Move: " + x + ", " + y + " to " + newX + ", " + newY;
+            
+            System.out.println("At first location: " + pieces[newX][newY].getType());
             boolean team = pieces[newX][newY].getTeam();
             if(endangersKing(team)){
                 System.out.println("THIS ENDANGERS THE KING!");
                 whyInvalid = true;
-                swap(x, y, newX, newY);
+                swap(newX, newY, x, y);
+                pieces[newX][newY] = temp;
                 return false;
             }
             
@@ -578,13 +581,14 @@ public class Board {
         }
     }
     
-    private void swap(int x1, int y1, int x2, int y2){
+    private Piece swap(int x1, int y1, int x2, int y2){
         if(isKing(x1,y1) || isKing(x2,y2)){
             swapKing(x1,y1,x2,y2);
         }
-        Piece temp = pieces[x1][y1];
-        pieces[x1][y1] = pieces[x2][y2];
-        pieces[x2][y2] = temp;
+        Piece temp = pieces[x2][y2];
+        pieces[x2][y2] = pieces[x1][y1];
+        pieces[x1][y1] = null;
+        return temp;
     }
     
     private boolean isKing(int x, int y){
