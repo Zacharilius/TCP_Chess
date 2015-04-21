@@ -87,6 +87,7 @@ public class GameState {
                      */
                     strValidMoves = test.validMovesToString(validMoves);
                     // !-- Send "strValidMoves" to the client --! \\
+                    System.out.println("VALID_MOVES " + strValidMoves);
                     output.println("VALID_MOVES " + strValidMoves);
                     if(validMoves == null) break; //meaning this loop starts to repeat again
                     

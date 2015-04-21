@@ -326,19 +326,26 @@ public class ChessClient {
                 timepiece.setTurn(isYourTurn);
             	
             }else if(response.startsWith("VALID_MOVES")){
-            	String validMoves = response.substring(12);
-            	System.out.println(response);
-            	System.out.println(validMoves);
-            	// parse the validMoves string and highlight the valid moves on the board
-                if(validMoves!=null){
-                	highlightSpaces(validMoves.trim());
-                    readyToMove=true;
+                if(response.length() <= 20){
+                    System.out.println("No valid moves for that piece.");
+                    readyToMove=false;
                 }
                 else{
-                	System.out.println("No valid moves for that piece.");
-                	readyToMove=false;
-                }
-            	
+
+                	String validMoves = response.substring(12);
+                	System.out.println(response);
+                	System.out.println(validMoves);
+                	// parse the validMoves string and highlight the valid moves on the board
+                    if(validMoves!=null){
+                    	highlightSpaces(validMoves.trim());
+                        readyToMove=true;
+                    }
+                    else{
+                    	System.out.println("No valid moves for that piece.");
+                        readyToMove=false;
+                    }
+            	}
+
         	}else if(response.startsWith("NEW_BOARD")) {
                 messageLabel.setText("Board updated");
                 String newBoard = response.substring(10);
@@ -354,9 +361,11 @@ public class ChessClient {
                 
             }else if (response.startsWith("WIN")) {
                 messageLabel.setText("You win!!!");
+                timepiece.stopTimer();
                 break;
             } else if (response.startsWith("LOSE")) {
                 messageLabel.setText("You lose!!!");
+                timepiece.stopTimer();
                 break;
             } else if (response.startsWith("STALEMATE")) {
                 messageLabel.setText("Stalemate");

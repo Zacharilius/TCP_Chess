@@ -1,7 +1,7 @@
 package server;
 
 public class Board {
-	private Piece[][] pieces; //first column = x, second = y;
+    private Piece[][] pieces; //first column = x, second = y;
     private int whiteKingX, whiteKingY, blackKingX, blackKingY;
     private boolean checkMate, whyInvalid;
     private String moveMSG;
@@ -88,7 +88,7 @@ public class Board {
         }
         String type = pieces[x][y].getType();
         if(team != pieces[x][y].getTeam()){
-        	return null;
+            return null;
         }
         switch(type){
             case "Rook":
@@ -159,7 +159,7 @@ public class Board {
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 if(pieces[j][i] != null && pieces[j][i].getTeam() != team){
-                	//Added team to validMoves so it would compile - Zach
+                    //Added team to validMoves so it would compile - Zach
                     moves = validMoves(!team, j,i);
                     if(moves != null){
                         canEscape = canEscapeCheck(j,i,moves);
@@ -254,7 +254,7 @@ public class Board {
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 if(pieces[j][i] != null && pieces[j][i].getTeam() != team){
-                    moves = validMoves(team, j,i);
+                    moves = validMoves(!team, j,i);
                     if(moves != null && moves[kingX][kingY]){
                         return true;
                     }
@@ -545,7 +545,7 @@ public class Board {
     }
     
     public boolean movePiece(int x, int y, int newX, int newY, boolean[][] moves){
-    	if(moves != null && moves[newX][newY]){
+        if(moves != null && moves[newX][newY]){
             Piece temp = swap(x, y, newX, newY);
             moveMSG = "Move: " + x + ", " + y + " to " + newX + ", " + newY;
             
@@ -635,7 +635,7 @@ public class Board {
     public String validMovesToString(boolean[][] moves){
         String temp = "";
         if(moves == null){
-            return null;
+            return temp;
         }
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
@@ -687,7 +687,7 @@ public class Board {
     }
     
     public boolean whyInvalid(){
-    	return whyInvalid;
+        return whyInvalid;
     }
     
 } //end of class

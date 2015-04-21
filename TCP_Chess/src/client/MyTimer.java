@@ -8,7 +8,7 @@ public class MyTimer extends JLabel{
 	private int myCtr;
 	private int otherCtr;
 	private boolean isMyTurn;
-
+	private Timer t;
 	
 	public MyTimer(){
 		myCtr=0;
@@ -18,8 +18,11 @@ public class MyTimer extends JLabel{
 	}
 
 	public void startTimer(){
-		Timer t=new Timer(1000,new MyTimerActionListener());
+		t=new Timer(1000,new MyTimerActionListener());
 		t.start();
+	}
+	public void stopTimer(){
+		t.stop();
 	}
 	public int incrementMyCtr(){
 		return myCtr++;
