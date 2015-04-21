@@ -35,8 +35,6 @@ public class GameState {
             while(!switchTurn){
                 try{
                     System.out.println("!switchTurn");
-              		switchTurn = false;
-
                     if(isWhite){
                     System.out.println("isWhite");
                         //!-- make the local buffer equal to the player that's white --!\\
