@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.BoxLayout;
 
 
 /**
@@ -35,11 +36,13 @@ public class ChessClient {
     //private ImageIcon opponentIcon;
 
     private MySquare[][] board = new MySquare[8][8];
+    private MyTimer timepiece=new MyTimer();
     //private MySquare currentSquare;
     private boolean playerIsBlack=false; //Change this value upon selection of color. DO NOT HARDCODE!
     private boolean isYourTurn=true; //Change this value upon start(true)/end(false) of your turn. DO NOT HARDCODE!
     private boolean readyToMove=false; //Change this value to true upon reception of valid moves. false when turn starts, and false when invalid move is chosen DO NOT HARDCODE!
     private JPanel boardPanel = new JPanel();
+    private JPanel timerPanel = new JPanel();
 
     private Socket socket;
     private BufferedReader in;
@@ -62,7 +65,12 @@ public class ChessClient {
       
         // Layout GUI
         messageLabel.setBackground(Color.lightGray);
-        frame.getContentPane().add(messageLabel, "South");
+        //frame.getContentPane().add(messageLabel, "South");
+        //frame.getContentPane().add(messageLabel);
+        timerPanel.setBackground(Color.lightGray);
+        timerPanel.setLayout(new BoxLayout(timerPanel,BoxLayout.Y_AXIS));
+        timerPanel.add(messageLabel);
+        timerPanel.add(timepiece);
 
         boardPanel.setBackground(Color.black);
         boardPanel.setLayout(new GridLayout(board.length, board[0].length, 2, 2));
@@ -101,6 +109,7 @@ public class ChessClient {
             }
         }
         frame.getContentPane().add(boardPanel, "Center");
+        frame.getContentPane().add(timerPanel, "South");
         
 
         //highlightSpaces("1000000000000000000000000000001110011010110110101011100110110011");
@@ -298,6 +307,7 @@ public class ChessClient {
                 if(!playerIsBlack){//Move this logic to place where color gets chosen AFTER playerIsBlack has been set
                     flipBoard();//When this is called, white is put on the bottom. Default: black is on bottom
                 }
+                timepiece.startTimer();
                 break;
             }
         }
@@ -313,6 +323,7 @@ public class ChessClient {
             	
                 messageLabel.setText("Your move");
                 isYourTurn=true;
+                timepiece.setTurn(isYourTurn);
             	
             }else if(response.startsWith("VALID_MOVES")){
             	String validMoves = response.substring(12);
@@ -337,6 +348,7 @@ public class ChessClient {
                 // Update display to show updated board. 
                 isYourTurn=false;
                 readyToMove=false;
+                timepiece.setTurn(isYourTurn);
                 updateBoardState(newBoard.trim());
                 unhighlightAll();
                 
@@ -446,7 +458,12 @@ public class ChessClient {
     	}
     	boardPanel.removeAll();
     	messageLabel.setBackground(Color.lightGray);
-        frame.getContentPane().add(messageLabel, "South");
+        //frame.getContentPane().add(messageLabel, "South");
+        timerPanel.setBackground(Color.lightGray);
+        timerPanel.setLayout(new BoxLayout(timerPanel,BoxLayout.Y_AXIS));
+        timerPanel.add(messageLabel);
+        timerPanel.add(timepiece);
+
         boardPanel.setBackground(Color.black);
         boardPanel.setLayout(new GridLayout(board.length, board[0].length, 2, 2));
         for (int i = 0; i < board.length; i++) {
@@ -489,5 +506,10 @@ public class ChessClient {
             }
         }
         frame.getContentPane().add(boardPanel, "Center");
+        frame.getContentPane().add(timerPanel, "South");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(500, 500);
+        frame.setVisible(true);
+        frame.setResizable(false);
     }
 }
